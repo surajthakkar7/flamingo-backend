@@ -1,9 +1,10 @@
-const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
-const app = express();
+const cors = require("cors");
 const dotenv = require("dotenv");
+
+const app = express();
 dotenv.config();
 
 // Create a transporter for nodemailer
@@ -22,18 +23,17 @@ app.use(bodyParser.json());
 // Use the 'cors' middleware
 app.use(cors());
 
-
 app.post("/submit-appointment", (req, res) => {
   console.log("POST request received at /submit-appointment");
 
-  const { name, email, phone, preferredDate, preferredTime, message } =
+  const { patientName, email, phone, preferredDate, preferredTimeSlot, message, doctor } =
     req.body;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_TO, // Replace with your email address
     subject: "New Appointment Request",
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nDate: ${preferredDate}\nTime: ${preferredTime}\nMessage: ${message}`,
+    text: `Patient Name: ${patientName}\nEmail: ${email}\nPhone: ${phone}\nDate: ${preferredDate}\nTime Slot: ${preferredTimeSlot}\nDoctor: ${doctor}\nMessage: ${message}`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -42,10 +42,8 @@ app.post("/submit-appointment", (req, res) => {
       res.status(500).send("Failed to send appointment request.");
     } else {
       console.log("Email sent: " + info.response);
-      res.setHeader("Content-Type", "application/json"); // Set content type to JSON
-      res
-        .status(200)
-        .json({ message: "Appointment request sent successfully." });
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json({ message: "Appointment request sent successfully." });
     }
   });
 });
